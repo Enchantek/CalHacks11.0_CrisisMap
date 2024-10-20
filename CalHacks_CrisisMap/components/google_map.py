@@ -1,31 +1,31 @@
+#https://maps.googleapis.com/maps/api/js?key=AIzaSyBmIovXybK7OPKtoADkd1WpSq7iMAkCctw&callback=initMap
+#https://maps.googleapis.com/maps/api/js?key=AIzaSyABud6rxzKEJjIWnYedmenSem0_basmLsY&callback=
+
 import reflex as rx
 import requests
 
-def google_map():
-    return rx.html("""
+def google_map(lat=37.7749, lon=-122.4194, heatmap_data=None):
+    # Create a string for heatmap data points in JavaScript
+    heatmap_data_js = ','.join([f"new google.maps.LatLng({lat}, {lon})" for lat, lon in heatmap_data]) if heatmap_data else ""
+
+    return rx.html(f"""
         <div id="map" style="height: 400px; width: 100%;"></div>
         <script>
-            function initMap() {
-                var map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: 37.78476, 122.40252},
+            function initMap() {{
+                var map = new google.maps.Map(document.getElementById('map'), {{
+                    center: {{ lat: {lat}, lng: {lon} }},
                     zoom: 8
-                });
-            }
-        </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhDbwUcLTef3gG7ORV6TK5gtIkIpkEsxE&callback=initMap"
-        async defer></script>
-    """)
+                }});
 
-# Function to get lat/lon from Google Geocoding API using ZIP code
-def get_lat_lon_from_zip(zip_code):
-    google_api_key = "AIzaSyAhDbwUcLTef3gG7ORV6TK5gtIkIpkEsxE"  # Replace with your actual Google API key
-    geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_code}&key={google_api_key}"
-    
-    response = requests.get(geocode_url)
-    data = response.json()
-    
-    if data['status'] == 'OK':
-        location = data['results'][0]['geometry']['location']
-        return location['lat'], location['lng']
-    else:
-        return None, None
+                if ({'true' if heatmap_data else 'false'}) {{
+                    var heatmap = new google.maps.visualization.HeatmapLayer({{
+                        data: [
+                            {heatmap_data_js}
+                        ],
+                        map: map
+                    }});
+                }}
+            }}
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABud6rxzKEJjIWnYedmenSem0_basmLsY&libraries=visualization&callback=initMap" async defer></script>
+    """)
