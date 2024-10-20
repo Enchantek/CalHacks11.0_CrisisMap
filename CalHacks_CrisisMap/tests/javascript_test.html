@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mock Weather Alerts in Florida</title>
+    <style>
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+    <script>
+      let map;
+
+      function initMap() {
+        // Initialize the map centered on Florida
+        map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 6,
+          center: { lat: 27.9944024, lng: -81.7602544 }, // Central Florida
+        });
+
+        // Generate mock alerts for different locations in Florida
+        const alerts = generateMockAlerts();
+
+        // Plot these alerts on the map
+        plotAlertsOnMap(alerts);
+      }
+
+      function generateMockAlerts() {
+        // Mock data simulating OpenWeather API alerts
+        return [
+          {
+            sender_name: "National Weather Service",
+            event: "Severe Thunderstorm Warning",
+            start: Date.now() / 1000,
+            end: Date.now() / 1000 + 3600, // Ends in one hour
+            description: "A severe thunderstorm warning is in effect until 3 PM today.",
+            coordinates: { lat: 25.7617, lon: -80.1918 }, // Miami, FL
+          },
+          {
+            sender_name: "Local Weather Authority",
+            event: "Flash Flood Warning",
+            start: Date.now() / 1000,
+            end: Date.now() / 1000 + 7200, // Ends in two hours
+            description: "Flash flood warning in effect. Seek higher ground immediately.",
+            coordinates: { lat: 28.5383, lon: -81.3792 }, // Orlando, FL
+          },
+          {
+            sender_name: "Weather Service Florida",
+            event: "Tornado Watch",
+            start: Date.now() / 1000,
+            end: Date.now() / 1000 + 10800, // Ends in three hours
+            description: "Tornado watch issued. Be alert and ready to move to safety.",
+            coordinates: { lat: 27.9506, lon: -82.4572 }, // Tampa, FL
+          },
+        ];
+      }
+
+      function plotAlertsOnMap(alerts) {
+        alerts.forEach(alert => {
+          // Define a simple box around the alert's location to represent the affected area
+          const radius = 0.5; // Example radius in degrees
+          const coordinates = [
+            { lat: alert.coordinates.lat + radius, lng: alert.coordinates.lon - radius },
+            { lat: alert.coordinates.lat + radius, lng: alert.coordinates.lon + radius },
+            { lat: alert.coordinates.lat - radius, lng: alert.coordinates.lon + radius },
+            { lat: alert.coordinates.lat - radius, lng: alert.coordinates.lon - radius },
+          ];
+
+          // Create a polygon to represent the danger zone
+          const dangerZone = new google.maps.Polygon({
+            paths: coordinates,
+            strokeColor: "#FF0000",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: "#FF0000",
+            fillOpacity: 0.35,
+          });
+
+          // Set the polygon on the map
+          dangerZone.setMap(map);
+
+          // Add an info window with alert details
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<h3>${alert.event}</h3><p>${alert.description}</p>`,
+          });
+
+          // Add a click listener to show the info window when the danger zone is clicked
+          dangerZone.addListener("click", () => {
+            infoWindow.setPosition(coordinates[0]);
+            infoWindow.open(map);
+          });
+        });
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB00U7TY2GZJANOC34L6KXnWnlr3bax8rE&callback=initMap"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
