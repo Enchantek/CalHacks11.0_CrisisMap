@@ -9,7 +9,7 @@ def google_map(lat=37.7749, lon=-122.4194, heatmap_data=None):
     heatmap_data_js = ','.join([f"new google.maps.LatLng({lat}, {lon})" for lat, lon in heatmap_data]) if heatmap_data else ""
 
     return rx.html(f"""
-        <div id="map" style="height: 400px; width: 100%;"></div>
+        <div id="map" style="height: 100%; width: 100%;"></div>
         <script>
             function initMap() {{
                 var map = new google.maps.Map(document.getElementById('map'), {{
